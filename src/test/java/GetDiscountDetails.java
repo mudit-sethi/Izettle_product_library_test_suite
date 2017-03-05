@@ -48,7 +48,7 @@ public class GetDiscountDetails {
         Response response = DiscountEndpoints.GetDiscountDetails(DiscountId, HttpStatus.SC_OK);
         String ETag1 = response.header("Etag");
         String NewDiscountName = RandomStringUtils.randomAlphabetic(10);
-        Map NewPutMap = new HashMap();
+        HashMap<String, String> NewPutMap = new HashMap<String, String>();
         NewPutMap.put("name", NewDiscountName);
         Gson gson = new Gson();
         String NewNameJson = gson.toJson(NewPutMap);

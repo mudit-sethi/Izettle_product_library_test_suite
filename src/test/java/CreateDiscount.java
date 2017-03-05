@@ -1,4 +1,3 @@
-
 import org.junit.Before;
 import org.junit.Test;
 import org.apache.http.HttpStatus;
@@ -115,6 +114,5 @@ public class CreateDiscount {
         DiscountEndpoints.CreateDiscount(JsonPayload, HttpStatus.SC_CREATED);
         DiscountEndpoints.CreateDiscount(JsonPayload, HttpStatus.SC_CREATED); //No check on duplicate objects
     }
-
 
 }

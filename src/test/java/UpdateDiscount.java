@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertThat;
@@ -44,7 +43,7 @@ public class UpdateDiscount {
     @Test
     public void UpdateDiscountWithNewName() {
         String NewDiscountName = RandomStringUtils.randomAlphabetic(10);
-        Map NewPutMap = new HashMap();
+        HashMap<String, String> NewPutMap = new HashMap<String, String>();
         NewPutMap.put("name", NewDiscountName);
         Gson gson = new Gson();
         String NewNameJson = gson.toJson(NewPutMap);
@@ -58,7 +57,7 @@ public class UpdateDiscount {
     @Test
     public void UpdateDiscountForDiscountThatNotExists() {
         String NewDiscountName = RandomStringUtils.randomAlphabetic(10);
-        Map NewPutMap = new HashMap();
+        HashMap<String, String> NewPutMap = new HashMap<String, String>();
         NewPutMap.put("name", NewDiscountName);
         Gson gson = new Gson();
         String NewNameJson = gson.toJson(NewPutMap);
@@ -68,7 +67,7 @@ public class UpdateDiscount {
 
     @Test
     public void UpdateDiscountWithBodyFieldThatIsNotAllowed() {
-        Map NewPutMap = new HashMap();
+        HashMap<String, String> NewPutMap = new HashMap<String, String>();
         NewPutMap.put("Random", "Random");  // Will update the Discount with this Field which is not in the contract
         Gson gson = new Gson();
         String NewNameJson = gson.toJson(NewPutMap);
@@ -78,7 +77,7 @@ public class UpdateDiscount {
 
     @Test
     public void UpdateDiscountWithNullValueForName() {
-        Map NewPutMap = new HashMap();
+        HashMap<String, String> NewPutMap = new HashMap<String, String>();
         NewPutMap.put("name", null);
         NewPutMap.put("Description", "Description");
         GsonBuilder gb = new GsonBuilder();
@@ -97,7 +96,7 @@ public class UpdateDiscount {
         Response response = DiscountEndpoints.GetDiscountDetails(DiscountIdToUpdate, HttpStatus.SC_OK);
         JsonPath bodyJson = response.body().jsonPath();
         String ETag = bodyJson.getString("etag");
-        Map NewPutMap = new HashMap();
+        HashMap<String, String> NewPutMap = new HashMap<String, String>();
         NewPutMap.put("name", NewDiscountName);
         Gson gson = new Gson();
         String NewNameJson = gson.toJson(NewPutMap);
@@ -110,7 +109,7 @@ public class UpdateDiscount {
     @Test
     public void UpdateDiscountNameWithPreConditionFail() {
         String NewDiscountName = RandomStringUtils.randomAlphabetic(10);
-        Map NewPutMap = new HashMap();
+        HashMap<String, String> NewPutMap = new HashMap<String, String>();
         NewPutMap.put("name", NewDiscountName);
         Gson gson = new Gson();
         String NewNameJson = gson.toJson(NewPutMap);

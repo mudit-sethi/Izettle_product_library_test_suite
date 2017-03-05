@@ -1,9 +1,7 @@
 import com.fasterxml.uuid.Generators;
 import com.google.gson.Gson;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 
 public class DiscountJsonBuilder {
@@ -15,10 +13,10 @@ public class DiscountJsonBuilder {
     private final String amount;
     private final String CurrencyId;
     private String uuid;
-    private String etag;
+    private String eTag;
 
     public DiscountJsonBuilder(String Name, String Percentage, String Reference, String Amount, String CurrencyId,
-                               String uuid, String etag) {
+                               String uuid, String eTag) {
         this.uuid = uuid;
         this.name = Name;
         this.description = "";
@@ -26,7 +24,7 @@ public class DiscountJsonBuilder {
         this.externalReference = Reference;
         this.amount = Amount;
         this.CurrencyId = CurrencyId;
-        this.etag = etag;
+        this.eTag = eTag;
     }
 
     public String DiscountPayloadGenerator(Boolean WithAmount, Boolean WithPercentage) {
@@ -35,7 +33,7 @@ public class DiscountJsonBuilder {
             uuid = Generators.timeBasedGenerator().generate().toString();
         }
 
-        Map DiscountPayload = new HashMap();
+        HashMap<String, Object> DiscountPayload = new HashMap<String, Object>();
         DiscountPayload.put("uuid", uuid);
         DiscountPayload.put("name", name);
         DiscountPayload.put("description", description);
@@ -44,7 +42,7 @@ public class DiscountJsonBuilder {
 
 
         if (WithAmount) {
-            Map AmountPayload = new HashMap();
+            HashMap<String, String> AmountPayload = new HashMap<String, String>();
             AmountPayload.put("amount", amount);
             AmountPayload.put("currencyId", CurrencyId);
             DiscountPayload.put("amount", AmountPayload);
@@ -53,14 +51,13 @@ public class DiscountJsonBuilder {
         if (WithPercentage) {
             DiscountPayload.put("percentage", percentage);
         }
-        if (etag != null) {
-            DiscountPayload.put("etag", etag);
+        if (eTag != null) {
+            DiscountPayload.put("eTag", eTag);
         }
 
         Gson gson = new Gson();
-        String json = gson.toJson(DiscountPayload);
-        return json;
-    }
+        return gson.toJson(DiscountPayload);
+        }
 
 
 }
