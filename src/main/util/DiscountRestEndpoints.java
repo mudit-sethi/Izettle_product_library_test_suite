@@ -1,7 +1,6 @@
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import io.restassured.response.ResponseBody;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 
@@ -10,8 +9,7 @@ import static io.restassured.RestAssured.given;
 
 public class DiscountRestEndpoints {
 
-    private String token;
-    private String Location;
+    public String token;
 
     public DiscountRestEndpoints(){
         RestAssured.baseURI = "https://products.izettletest.com/organizations/1f85f1c0-ff2a-11e6-9fea-e83146fb0828/discounts";
@@ -19,7 +17,7 @@ public class DiscountRestEndpoints {
     }
 
     private String GetToken(){
-        String AccessToken =
+        return
             given()
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .body("grant_type=refresh_token&client_id=0bb91e02-7e53-4742-9bcc-7388d694e1fe&" +
@@ -30,12 +28,10 @@ public class DiscountRestEndpoints {
                 .statusCode(HttpStatus.SC_OK).
             extract()
                 .path("access_token");
-        return AccessToken;
     }
 
     public Response GetListOfDiscounts(int expectedResponse) {
-
-        Response response =
+        return
             given()
                 .header("Authorization", "Bearer " + token).
             when()
@@ -45,12 +41,11 @@ public class DiscountRestEndpoints {
                 .contentType(ContentType.JSON).
             extract()
                 .response();
-        return response;
     }
 
     public Response GetDiscountDetails(String DiscountId, int expectedResponse) {
 
-        Response response =
+        return
             given()
                 .header("Authorization", "Bearer " + token).
               when()
@@ -60,12 +55,11 @@ public class DiscountRestEndpoints {
             extract()
                 .response();
 
-        return response;
-    }
+        }
 
     public Response GetDiscountDetailsWithIfMatchHeader(String DiscountId, int expectedResponse, String ETag) {
 
-        Response response =
+        return
             given()
                 .header("Authorization", "Bearer " + token)
                 .header("If-None-Match", ETag).
@@ -75,7 +69,6 @@ public class DiscountRestEndpoints {
                 .statusCode(expectedResponse).
             extract()
                 .response();
-        return response;
     }
 
 
@@ -89,26 +82,34 @@ public class DiscountRestEndpoints {
             .statusCode(expectedResponse);
     }
 
-    public ResponseBody UpdateDiscountDetails(String DiscountId, String Payload, int ExpectedResponse, String ETag){
-        ResponseBody body =
-            given()
-                .header("Authorization", "Bearer " + token)
-                .header("Content-Type", "application/json")
-                .header("If-Match", ETag)
-                .body(Payload).
-            when()
-                .put("/" + DiscountId).
-            then()
-                .statusCode(ExpectedResponse).
-            extract()
-                .response();
-        return body;
+    public void UpdateDiscountDetails(String DiscountId, String Payload, int ExpectedResponse) {
 
+        given()
+            .header("Authorization", "Bearer " + token)
+            .header("Content-Type", "application/json")
+            .body(Payload).
+        when()
+            .put("/" + DiscountId).
+        then()
+            .statusCode(ExpectedResponse);
     }
+
+    public void UpdateDiscountDetailsWithCondition(String DiscountId, String Payload, String ETag, int ExpectedResponse){
+
+        given()
+            .header("Authorization", "Bearer " + token)
+            .header("Content-Type", "application/json")
+            .header("If-Match", "\"" + ETag + "\"" )
+            .body(Payload).
+        when()
+            .put("/" + DiscountId).
+        then()
+            .statusCode(ExpectedResponse);
+        }
 
     public String CreateDiscount(String Payload, int ExpectedResponse){
 
-        Location =
+        String Location =
             given()
                 .header("Authorization", "Bearer " + token)
                 .contentType(ContentType.JSON)
@@ -120,12 +121,7 @@ public class DiscountRestEndpoints {
             extract()
                 .header("Location");
 
-        String DiscountId = StringUtils.substringAfter(Location, "/discounts/");
-        return DiscountId;
+        return StringUtils.substringAfter(Location, "/discounts/");
     }
 
-    public String GetEtagFromHeader(Response response){
-        String Etag = response.header("ETag");
-        return Etag;
-    }
 }

@@ -1,58 +1,65 @@
-
+import com.google.gson.Gson;
 import io.restassured.response.Response;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
-import org.apache.http.HttpStatus;
-import org.apache.commons.lang3.RandomStringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class GetDiscountDetails {
 
-    private static String DiscountName;
-    private static String DiscountPercentage;
-    private static String DiscountAmount;
-    private static String AmountCurrencyId;
-    private static String DiscountReference;
-    private static DiscountRestEndpoints TestHelp;
+    private static String Name;
+    private static String Percentage;
+    private static String Amount;
+    private static String CurrencyId;
+    private static String Reference;
+    private static DiscountRestEndpoints DiscountEndpoints;
     private static DiscountJsonBuilder JsonHelper;
-    private String JsonPayload;
-    private String DiscountId;
 
     @Before
     public void setUp() {
-        TestHelp = new DiscountRestEndpoints();
-        DiscountName = RandomStringUtils.randomAlphabetic(10);
-        DiscountPercentage = RandomStringUtils.randomNumeric(2);
-        DiscountReference = RandomStringUtils.randomAlphabetic(10);
-        DiscountAmount = RandomStringUtils.randomNumeric(5);
-        AmountCurrencyId = "AED";
-        JsonHelper = new DiscountJsonBuilder(DiscountName, DiscountPercentage, DiscountReference, DiscountAmount,
-                AmountCurrencyId, null, null);
+        DiscountEndpoints = new DiscountRestEndpoints();
+        Name = RandomStringUtils.randomAlphabetic(10);
+        Percentage = RandomStringUtils.randomNumeric(2);
+        Reference = RandomStringUtils.randomAlphabetic(10);
+        Amount = RandomStringUtils.randomNumeric(5);
+        CurrencyId = "AED";
+        JsonHelper = new DiscountJsonBuilder(Name, Percentage, Reference, Amount,
+                CurrencyId, null, null);
 
     }
 
     @Test
-    public void DiscountDetailsWithIfNoneMatchETag(){
-        JsonPayload = JsonHelper.DiscountPayloadGenerator(false, true);
-        DiscountId = TestHelp.CreateDiscount(JsonPayload, HttpStatus.SC_CREATED);
-        Response response = TestHelp.GetDiscountDetails(DiscountId, HttpStatus.SC_OK);
+    public void DiscountDetailsWhenEtagMatch() {
+        String JsonPayload = JsonHelper.DiscountPayloadGenerator(false, true);
+        String DiscountId = DiscountEndpoints.CreateDiscount(JsonPayload, HttpStatus.SC_CREATED);
+        Response response = DiscountEndpoints.GetDiscountDetails(DiscountId, HttpStatus.SC_OK);
         String ETag = response.header("Etag");
-        response = TestHelp.GetDiscountDetailsWithIfMatchHeader(DiscountId, HttpStatus.SC_NOT_MODIFIED, ETag);
+        DiscountEndpoints.GetDiscountDetailsWithIfMatchHeader(DiscountId, HttpStatus.SC_NOT_MODIFIED, ETag);
     }
 
-    /*@Test
-    public void DiscountDetailsWithIfNoneNotMatchEtag(){
-        JsonPayload = JsonHelper.DiscountPayloadGenerator(false, true);
-        DiscountId = TestHelp.CreateDiscount(JsonPayload, HttpStatus.SC_CREATED);
-        Response response = TestHelp.GetDiscountDetails(DiscountId, HttpStatus.SC_OK);
-        String ETag = "A78341E49291B8B5174AC97057662BD1--gzip";
-        TestHelp.GetDiscountDetailsWithIfMatchHeader(DiscountId, HttpStatus.SC_OK, ETag);
-    }*/
+    @Test
+    public void DiscountDetailsWhenEtagNotMatch(){
+        String JsonPayload = JsonHelper.DiscountPayloadGenerator(false, true);
+        String DiscountId = DiscountEndpoints.CreateDiscount(JsonPayload, HttpStatus.SC_CREATED);
+        Response response = DiscountEndpoints.GetDiscountDetails(DiscountId, HttpStatus.SC_OK);
+        String ETag1 = response.header("Etag");
+        String NewDiscountName = RandomStringUtils.randomAlphabetic(10);
+        Map NewPutMap = new HashMap();
+        NewPutMap.put("name", NewDiscountName);
+        Gson gson = new Gson();
+        String NewNameJson = gson.toJson(NewPutMap);
+        DiscountEndpoints.UpdateDiscountDetails(DiscountId,  NewNameJson, HttpStatus.SC_NO_CONTENT);
+        DiscountEndpoints.GetDiscountDetailsWithIfMatchHeader(DiscountId, HttpStatus.SC_OK, ETag1);
+    }
 
     @Test
-    public void DiscountDetailsForInvalidDiscount(){
+    public void DiscountDetailsForInvalidDiscount() {
         UUID InvalidDiscountId = UUID.randomUUID();
-        TestHelp.GetDiscountDetails(InvalidDiscountId.toString(), HttpStatus.SC_NOT_FOUND);
+        DiscountEndpoints.GetDiscountDetails(InvalidDiscountId.toString(), HttpStatus.SC_NOT_FOUND);
     }
 
 }
